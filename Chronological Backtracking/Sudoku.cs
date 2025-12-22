@@ -208,7 +208,7 @@ public class Sudoku
 		}
 		return emptySquaresQueue;
 	}
-
+}
 
 	//3x3 box that has to contain all 9 numbers
 	public class Box

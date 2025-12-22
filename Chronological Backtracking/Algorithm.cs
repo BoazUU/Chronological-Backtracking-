@@ -8,13 +8,15 @@ public class ChronologicBacktracking : SudokuAlgorithm
 {
     public override (Sudoku, int) Apply(Sudoku sudoku)
     {
-        // Find an empty square
+        // Find an empty square (search sudoku, from left to right, top to bottem) 
         // If there are none, evaluate and return
 
         // Loop from 1 to 9
             // fill in the value
-            
+            // Apply this function again
+            // If sudoku that is made has a score of 0 return this, else go through with the loop
 
+        //if no solution is found return (Null, iteration)
     }
 }
 
