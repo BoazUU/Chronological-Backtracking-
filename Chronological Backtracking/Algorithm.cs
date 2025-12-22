@@ -17,6 +17,8 @@ public class ChronologicBacktracking : SudokuAlgorithm
             // If sudoku that is made has a score of 0 return this, else go through with the loop
 
         //if no solution is found return (Null, iteration)
+    
+        throw new NotImplementedException();
     }
 }
 
@@ -79,24 +81,22 @@ public class IteratedLocalSearch : SudokuAlgorithm
             iteration++;
 
             //For testing purposes only
-            // if (iteration % 1000 == 0)
-            // {
-            //     Console.WriteLine($"{iteration} iterations : Score is {newSudoku.Evaluation.TotalScore()}");
-            //     //newSudoku.Print();
-            // }
+            //if (iteration % 1000 == 0)
+            //{
+            //    Console.WriteLine($"{iteration} iterations : Score is {newSudoku.Evaluation.TotalScore()}");
+            //    newSudoku.Print();
+            //}
         }
-        
-        // Console.WriteLine($"{iteration} iterations");
+
         return (newSudoku, iteration);
     }
 
     public Sudoku Step(Sudoku sudoku, bool randomSwap)
     {
-        int rowIndex = _random.Next(0, 3);
-        int columnIndex = _random.Next(0, 3);
+        int boxIndex = _random.Next(0, 9);
 
         // Create all possible swaps within a box and choose the best one if it better than the score
-        List<Sudoku> allSwitches = SingleSwitchedSudoku(sudoku, rowIndex, columnIndex);
+        List<Sudoku> allSwitches = SingleSwitchedSudoku(sudoku, boxIndex);
 
         // There should be a minimum of one possible switch otherwise just return the sudoku
         if (allSwitches.Count == 0)
@@ -106,26 +106,26 @@ public class IteratedLocalSearch : SudokuAlgorithm
             return allSwitches[_random.Next(allSwitches.Count)];
 
         Sudoku newSudoku = allSwitches.MinBy(s => s.Evaluation.TotalScore());
-        int[] evaluations = allSwitches.Select(s => s.Evaluation.TotalScore()).ToArray();
         if (newSudoku.Evaluation.TotalScore() <= sudoku.Evaluation.TotalScore())
             return newSudoku;
         
         return sudoku;
     }
 
-    private List<Sudoku> SingleSwitchedSudoku(Sudoku sudoku, int X, int Y)
+    private List<Sudoku> SingleSwitchedSudoku(Sudoku sudoku, int boxIndex)
     {
         List<Coord> coords = new List<Coord>();
-
+        Square[,] box = sudoku.GetBox(boxIndex);
         // Loop through all squares in the box to find non-fixed squares
+
         for (int i = 0; i < 3; i++)
         {
             for (int j = 0; j < 3; j++)
             {
-                if (sudoku.Boxes[X, Y].Squares[i, j].isFixed)  
+                if (box[i, j].isFixed)  
                     continue;
-                
-                coords.Add(new(i, j));
+
+                coords.Add(box[i, j].position);
             }
         }
 
@@ -145,12 +145,9 @@ public class IteratedLocalSearch : SudokuAlgorithm
         {
             Sudoku copySudoku = new Sudoku(sudoku);
 
-            copySudoku.Boxes[X, Y].Switch(currCouple.one, currCouple.two);
+            copySudoku.Switch(currCouple.one, currCouple.two);
             copySudoku.Evaluate();
             
-            bool test = copySudoku == sudoku;
-
-            //do not add if the score is smaller than the original score.
             switchedSudokus.Add(copySudoku);
         }
         

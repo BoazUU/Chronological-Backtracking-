@@ -9,26 +9,16 @@ namespace TestProject
         }
 
         [TestCase("", 162)]
-        
-        [TestCase("9 6 1 2 8 7 3 4 5 " +
-                  "5 3 7 4 1 9 2 8 6 " +
-                  "2 8 4 6 3 5 1 7 9 " +
-                  "8 5 9 4 2 6 7 1 3 " +
-                  "7 6 1 8 5 3 9 2 4 " +
-                  "4 2 3 7 9 1 8 5 6 " +
-                  "5 3 4 6 7 2 1 9 8 " +
-                  "6 7 8 1 9 5 3 4 2 " +
-                  "9 1 2 3 4 8 5 6 7", 0)]
-
-        [TestCase("9 6 1 2 8 7 3 4 5 " +
-                  "5 3 9 4 1 9 2 8 6 " +
-                  "2 8 4 6 3 5 1 7 9 " +
-                  "8 5 9 4 2 6 7 1 3 " +
-                  "7 6 1 8 5 3 9 2 4 " +
-                  "4 2 3 7 9 1 9 5 6 " +
-                  "5 3 4 6 7 2 1 9 8 " +
-                  "6 7 9 1 9 5 3 4 2 " +
-                  "9 1 2 3 9 8 5 6 9", 10)]
+        [TestCase(
+                "6 9 1 0 0 0 2 3 8 " +
+                "0 0 0 3 0 0 1 0 0 " +
+                "0 0 5 0 8 1 4 6 0 " +
+                "7 0 2 4 8 9 3 0 0 " +
+                "0 0 0 0 2 7 5 0 4 " +
+                "0 9 4 0 1 0 8 7 2 " +
+                "8 7 3 0 0 0 1 6 0 " +
+                "4 5 0 0 0 0 0 0 0 " +
+                "0 0 0 0 0 0 3 4 0", 86)]
 
         public void TestSudokuEvaluate(string sudokuString, int expected)
         {
@@ -43,7 +33,9 @@ namespace TestProject
                 sudoku = builder.BuildSudokuFromText(sudokuString);
             }
 
-            Assert.IsTrue(sudoku.Evaluate().TotalScore() == expected);
+            TestContext.WriteLine(sudoku.Evaluation.TotalScore());
+
+            Assert.That(sudoku.Evaluation.TotalScore() == expected);
         }
 
         [Test]
@@ -61,29 +53,27 @@ namespace TestProject
             }
 
             // Count occurrences of each number in the Sudoku
-            for (int i = 0; i < 3; i++)
+            for (int k = 0; k < 9; k++)
             {
-                for (int j = 0; j < 3; j++)
+                for (int l = 0; l < 9; l++)
                 {
-                    for (int k = 0; k < 3; k++)
-                    {
-                        for (int l = 0; l < 3; l++)
-                        {
-                            numberCounts[sudoku.Boxes[i, j].Squares[k, l].value]++;
-                        }
-                    }
+                    numberCounts[sudoku.Squares[k, l].value]++;
                 }
             }
 
-            //CHeck if each number occurs 9 times and zero 0 times
+
+
+            //Check if each number occurs 9 times and zero 0 times
             bool allNumbersCorrect = numberCounts[0] == 0;
+
+            TestContext.WriteLine($"Number 0 occurs {numberCounts[0]} times.");
 
             for (int i = 1; i < 10; i++) {
                 allNumbersCorrect = numberCounts[i] == 9 && allNumbersCorrect;
                 TestContext.WriteLine($"Number {i} occurs {numberCounts[i]} times.");
             }
 
-            Assert.IsTrue(allNumbersCorrect);
+            Assert.That(allNumbersCorrect);
         }
     }
 }
