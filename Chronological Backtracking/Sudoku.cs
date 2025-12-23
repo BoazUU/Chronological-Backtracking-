@@ -75,7 +75,7 @@ public class Sudoku
 
 			for (int i = 0; i < 9; i++)
 			{
-				sudokuBox.Append(" " + (rowArray[i].value == 0 ? "•" : rowArray[i].value.ToString()) + " ");
+				sudokuBox.Append(" " + (rowArray[i].value == 0 ? "X" : rowArray[i].value.ToString()) + " ");
 				if (i % 3 == 2)
 				{
 					sudokuBox.Append("│");
@@ -179,10 +179,13 @@ public class Sudoku
 		foreach (Square square in squares)
 		{
 			int value = square.value;
-			if (value != 0 && !doubles.Contains(value))
+			if (value == 0) continue;
+
+			if (!doubles.Contains(value))
 			{
 				doubles.Add(value);
-			} else
+			} 
+			else
 			{
 				score++;
 			}
@@ -198,16 +201,16 @@ public class Sudoku
 		Squares[posB.x, posB.y] = temp;
     }
 
-    public Queue<Square> FindAllEmptySquare()
+    public List<Square> FindAllEmptySquare()
 	{
-		Queue<Square> emptySquares = new Queue<Square>();
+		List<Square> emptySquares = new();
 		for (int i = 0; i < 9; i++)
 		{
 			for (int j = 0; j < 9; j++)
 			{
 				if (Squares[i, j].value == 0)
 				{
-					emptySquares.Enqueue(Squares[i, j]);
+					emptySquares.Add(Squares[i, j]);
 				}
 			}
 		}

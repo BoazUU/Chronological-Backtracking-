@@ -1,38 +1,59 @@
 ﻿using System.Diagnostics;
 using System.Runtime.InteropServices.Marshalling;
+using System.Security.AccessControl;
 
 public static class Program 
 {    
     public static void Main()
     {        
+        Test();
+    }
+
+    public static void Test()
+    {
+        string sudokuString =
+            "2 0 0 0 8 0 3 0 0 0 6 0 0 7 0 0 8 4 0 3 0 5 0 0 2 0 9 0 0 0 1 0 5 4 0 8 0 0 0 0 0 0 0 0 0 4 0 2 7 0 6 0 0 0 3 0 1 0 0 7 0 4 0 7 2 0 0 4 0 0 6 0 0 0 4 0 1 0 0 0 3";
+
+        SudokuBuilder builder = new();
+        Sudoku sudoku = builder.BuildSudokuFromText(sudokuString);
+        sudoku.Print();
+        SudokuAlgorithm algorithm = new ChronologicBacktracking();
+        (Sudoku result, int iterations) = algorithm.Apply(sudoku);
+        Console.WriteLine("Result");
+        if(result != null) result.Print();
+        else Console.WriteLine("No solution found");
+    }
+
+    public static void ApplyIteratedLocalSearch()
+    {
         //Example sudoku string
-        string sudokuString = 
-            "6 9 1 0 0 0 2 3 8 " +
-            "0 0 0 3 0 0 1 0 0 " +
-            "0 0 5 0 8 1 4 6 0 " +
-            "7 0 2 4 8 9 3 0 0 " +
-            "0 0 0 0 2 7 5 0 4 " +
-            "0 9 4 0 1 0 8 7 2 " +
-            "8 7 3 0 0 0 1 6 0 " +
-            "4 5 0 0 0 0 0 0 0 " +
-            "0 0 0 0 0 0 3 4 0";
-    
+        string sudokuString =
+            "0 0 3 0 2 0 6 0 0 " +
+            "9 0 0 3 0 5 0 0 1 " +
+            "0 0 1 8 0 6 4 0 0 " +
+            "0 0 8 1 0 2 9 0 0 " +
+            "7 0 0 0 0 0 0 0 8 " +
+            "0 0 6 7 0 8 2 0 0 " +
+            "0 0 2 6 0 9 5 0 0 " +
+            "8 0 0 2 0 3 0 0 9 " +
+            "0 0 5 0 1 0 3 0 0";
+
         // consoleProgram();
-        
+
         bool running = true;
         bool paused = false;
 
         while (running)
         {
             Console.Clear();
-            
+
             //consoleAverage() for the average amount of iteration of 50 runs
             //consoleProgram() for the amount of iterations of a single run with more details
             consoleAverage();   // Your main program logic here
 
             while (Console.KeyAvailable) // clear leftover keys
                 Console.ReadKey(true);
-            
+
             // Console.WriteLine();
             paused = true;
             Console.WriteLine("Press ENTER to solve a new Sudoku, or ESC/Q to exit...");
@@ -53,32 +74,6 @@ public static class Program
         }
 
         Console.WriteLine("Sudoku Solver exited. Goodbye!");
-        
-        // ApplyIteratedLocalSearchSimple(sudokuString);
-    }
-
-    public static void Test()
-    {
-        string sudokuString =
-            "0 0 3 0 2 0 6 0 0 9 0 0 3 0 5 0 0 1 0 0 1 8 0 6 4 0 0 0 0 8 1 0 2 9 0 0 7 0 0 0 0 0 0 0 8 0 0 6 7 0 8 2 0 0 0 0 2 6 0 9 5 0 0 8 0 0 2 0 3 0 0 9 0 0 5 0 1 0 3 0 0";
-
-        SudokuBuilder builder = new();
-        Sudoku sudoku = builder.BuildSudokuFromText(sudokuString);
-        SudokuAlgorithm algorithm = new IteratedLocalSearch();
-        (Sudoku solved, int iterations) = algorithm.Apply(sudoku);
-        Console.WriteLine(solved.Evaluation.TotalScore());
-    }
-
-
-    //Function to apply Iterated Local Search algorithm on a sudoku string
-    public static void ApplyIteratedLocalSearchSimple(string sudokuString)
-    {
-        SudokuBuilder builder = new();
-        Sudoku sudoku = builder.BuildSudokuFromText(sudokuString);
-        SudokuAlgorithm algorithm = new IteratedLocalSearch();
-        (Sudoku solved, int iterations) = algorithm.Apply(sudoku);
-        solved.Print();
-        Console.WriteLine(solved.Evaluation.TotalScore());
     }
 
     public static void consoleProgram()

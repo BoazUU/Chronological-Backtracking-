@@ -8,17 +8,59 @@ public class ChronologicBacktracking : SudokuAlgorithm
 {
     public override (Sudoku, int) Apply(Sudoku sudoku)
     {
-        // Find an empty square (search sudoku, from left to right, top to bottem) 
-        // If there are none, evaluate and return
+        //Create hardcopy so orgiginal wont be changed
+        Sudoku sudokuCopy = new Sudoku(sudoku);
 
-        // Loop from 1 to 9
-            // fill in the value
-            // Apply this function again
-            // If sudoku that is made has a score of 0 return this, else go through with the loop
+        // Create a queue of empty squares
+        List<Square> emptySquares = sudokuCopy.FindAllEmptySquare();
+
+        // Apply the recursive function
+        ApplyRecursive(sudokuCopy, emptySquares, 0);
 
         //if no solution is found return (Null, iteration)
+        sudokuCopy.Evaluate();
+        if(sudokuCopy.FindAllEmptySquare().Count > 0)
+        {
+            return (null, 0);
+        }
+
+        return (sudokuCopy, 0);
+    }
+
+    public bool ApplyRecursive(Sudoku sudoku, List<Square> emptySquares, int depth)
+    {
+        // Find an empty square (search sudoku, from left to right, top to bottem) 
+        // If there are none, return the sudoku as it is solved
+        if (depth >= emptySquares.Count)
+            return true;
+
+        // Loop from 1 to 9
+        //      fill in the value
+        //          Check if the sudoku is still valid
+        //      Apply this function again
+        // If no value worked, reset the square and return to previous call
+        
+        //sudoku.Print();
+
+        Square square = emptySquares[depth];
+        for(int i = 1; i < 10; i++)
+        {
+            sudoku.Squares[square.position.x, square.position.y].SetValue(i);
+            sudoku.Evaluate(new int[] { square.position.x }, new int[] { square.position.y });
+            
+            if(sudoku.Evaluation.TotalScore() == 0)
+            {
+                bool solved = ApplyRecursive(sudoku, emptySquares, depth + 1);
+                if (solved)
+                {
+                    return true;
+                }
+            }
+        }
     
-        throw new NotImplementedException();
+        sudoku.Squares[square.position.x, square.position.y].SetValue(0);
+        sudoku.Evaluate(new int[] { square.position.x }, new int[] { square.position.y });
+        return false;
     }
 }
 
