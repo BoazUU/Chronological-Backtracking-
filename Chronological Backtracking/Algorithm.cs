@@ -38,9 +38,7 @@ public class ChronologicBacktracking : SudokuAlgorithm
         //      fill in the value
         //          Check if the sudoku is still valid
         //      Apply this function again
-        // If no value worked, reset the square and return to previous call
-        
-        //sudoku.Print();
+        // If no value worked, reset the square and return to previous 
 
         Square square = emptySquares[depth];
         for(int i = 1; i < 10; i++)
@@ -64,6 +62,62 @@ public class ChronologicBacktracking : SudokuAlgorithm
     }
 }
 
+public class ForwardChecking : SudokuAlgorithm
+{
+    public override (Sudoku, int) Apply(Sudoku sudoku)
+    {
+        //Create hardcopy so orgiginal wont be changed
+        Sudoku sudokuCopy = new Sudoku(sudoku);
+
+        // Create a queue of empty squares
+        List<Square> emptySquares = sudokuCopy.FindAllEmptySquare();
+
+        // Apply the recursive function
+        (bool solved, Sudoku result) = ApplyRecursive(sudokuCopy, emptySquares, 0);
+
+        if (solved)
+        {
+            return (result, 0);
+        }
+
+        return (null, 0);
+    }
+
+    public (bool solved, Sudoku result) ApplyRecursive(Sudoku sudoku, List<Square> emptySquares, int depth)
+    {
+        // Find an empty square (search sudoku, from left to right, top to bottem) 
+        // If there are none, return the sudoku as it is solved
+        if (depth >= emptySquares.Count)
+            return (true, sudoku);
+
+
+        //Go through all possible values in the squares domain. If a value makes it so another emtpy square has a empty domain, continue with searching.
+        // If no values work go back to previous square, aka return false. 
+        // Update domains
+        // Check if any other empty square has an empty domain
+        
+        // Problem is that domains are updated while in the foreach loop and square is used as refrence but is value typed.
+        Square square = emptySquares[depth];
+        foreach (int value in square.domain)
+        {
+            Sudoku temp = new Sudoku(sudoku);
+
+            temp.Squares[square.position.x, square.position.y].SetValue(value);
+            temp.UpdateDomains(square);
+            if (temp.AnyEmptyDomains(square)) continue;
+
+            // If we are here, no empty domains where found, continue the search
+            (bool solved, Sudoku result) tuple = ApplyRecursive(temp, emptySquares, depth + 1);
+            if (tuple.solved)
+            {
+                return tuple;
+            }
+        }
+
+        // No values worked, return false
+        return (false, null);
+    }
+}
 
 // An implementation of the Iterated Local Search algorithm for solving Sudoku puzzles
 public class IteratedLocalSearch : SudokuAlgorithm
@@ -82,7 +136,7 @@ public class IteratedLocalSearch : SudokuAlgorithm
 
         // The amount of times a new iteration has led to the same score, if this has reached the max duplicates,
         // then the algorithm has stagnated.
-        int duplicateScores = 0;    
+        int duplicateScores = 0;
         int iteration = 0;
         const int S = 15;
         const int MAX_DUPLICATES = 50;
@@ -107,7 +161,7 @@ public class IteratedLocalSearch : SudokuAlgorithm
             //If we have too many duplicate scores, perform S random swaps to escape local minima
             if (duplicateScores > MAX_DUPLICATES)
             {
-                for(int i = 0; i < S; i++)
+                for (int i = 0; i < S; i++)
                 {
                     newSudoku = Step(newSudoku, true);
                 }
@@ -150,7 +204,7 @@ public class IteratedLocalSearch : SudokuAlgorithm
         Sudoku newSudoku = allSwitches.MinBy(s => s.Evaluation.TotalScore());
         if (newSudoku.Evaluation.TotalScore() <= sudoku.Evaluation.TotalScore())
             return newSudoku;
-        
+
         return sudoku;
     }
 
@@ -164,7 +218,7 @@ public class IteratedLocalSearch : SudokuAlgorithm
         {
             for (int j = 0; j < 3; j++)
             {
-                if (box[i, j].isFixed)  
+                if (box[i, j].isFixed)
                     continue;
 
                 coords.Add(box[i, j].position);
@@ -189,10 +243,10 @@ public class IteratedLocalSearch : SudokuAlgorithm
 
             copySudoku.Switch(currCouple.one, currCouple.two);
             copySudoku.Evaluate();
-            
+
             switchedSudokus.Add(copySudoku);
         }
-        
+
         return switchedSudokus;
     }
 }

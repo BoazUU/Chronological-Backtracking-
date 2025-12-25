@@ -217,6 +217,40 @@ public class Sudoku
 
 		return emptySquares;
 	}
+
+	public Square[] GetAffectedSquares(Square changedSquare)
+	{
+        Square[] row = GetRow(changedSquare.position.x);
+        Square[] column = GetColumn(changedSquare.position.y);
+        Square[,] box = GetBox(changedSquare.GetBoxIndex());
+
+        Square[] allSquares = row.Concat(column).Concat(box.Cast<Square>()).Distinct().ToArray();
+		return allSquares;
+    }
+
+	public void UpdateDomains(Square changedSquare)
+	{
+		Square[] affectedSquares = GetAffectedSquares(changedSquare);
+
+		foreach(Square square in affectedSquares)
+		{
+			square.domain.Remove(changedSquare.value);
+        }
+    }
+
+	public bool AnyEmptyDomains(Square changedSquare)
+	{
+        Square[] affectedSquares = GetAffectedSquares(changedSquare);
+
+		foreach (Square square in affectedSquares)
+		{
+			if (square.domain.Count == 0)
+				return true;
+        }
+
+		return false;
+	}
+
 }
 
 //A single square in a box
@@ -225,6 +259,7 @@ public struct Square
 	public int value { get; private set; }
 	public bool isFixed;
 	public Coord position;
+	public SortedSet<int> domain;
 
 	//Zero is used for an empty value
 	public Square(Coord position)
@@ -232,6 +267,7 @@ public struct Square
 		value = 0;
 		isFixed = false;
 		this.position = position;
+        this.domain = new() { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
     }
 
 	public Square(int value, bool isFixed, Coord position)
@@ -239,6 +275,7 @@ public struct Square
 		this.value = value;
 		this.isFixed = isFixed;
 		this.position = position;
+		this.domain = new() { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
     }
 	public Square(int value, Coord position) : this(value, true, position)
 	{
@@ -250,6 +287,11 @@ public struct Square
 		if (!isFixed) this.value = value;
 		else throw new Exception("A fixed value should not be changed");
 	}
+
+	public int GetBoxIndex()
+	{
+		return (position.x / 3) * 3 + (position.y / 3);
+    }
 }
 
 //A simple coordinate struct
