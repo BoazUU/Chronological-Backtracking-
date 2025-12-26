@@ -16,7 +16,7 @@ public static class Program
 
         SudokuBuilder builder = new();
         Sudoku sudoku = builder.BuildSudokuFromText(sudokuString);
-        sudoku.Print();
+         sudoku.Print();
         SudokuAlgorithm algorithm = new ForwardChecking();
         (Sudoku result, int iterations) = algorithm.Apply(sudoku);
         Console.WriteLine("Result");

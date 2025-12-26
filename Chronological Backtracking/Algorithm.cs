@@ -72,6 +72,14 @@ public class ForwardChecking : SudokuAlgorithm
         // Create a queue of empty squares
         List<Square> emptySquares = sudokuCopy.FindAllEmptySquare();
 
+        // Setup domains for all empty squares
+        for(int i = 0; i < 9; i++)
+        {
+            for(int j = 0; j < 9; j++) { 
+                sudoku.UpdateDomains(sudoku.Squares[i,j]);
+            }
+        }
+
         // Apply the recursive function
         (bool solved, Sudoku result) = ApplyRecursive(sudokuCopy, emptySquares, 0);
 
@@ -96,15 +104,19 @@ public class ForwardChecking : SudokuAlgorithm
         // Update domains
         // Check if any other empty square has an empty domain
         
-        // Problem is that domains are updated while in the foreach loop and square is used as refrence but is value typed.
         Square square = emptySquares[depth];
-        foreach (int value in square.domain)
+        SortedSet<int> domain = new(square.domain);
+        
+        foreach (int value in domain)
         {
             Sudoku temp = new Sudoku(sudoku);
 
             temp.Squares[square.position.x, square.position.y].SetValue(value);
-            temp.UpdateDomains(square);
-            if (temp.AnyEmptyDomains(square)) continue;
+            temp.UpdateDomains(temp.Squares[square.position.x, square.position.y]);
+            if (temp.AnyEmptyDomains(temp.Squares[square.position.x, square.position.y])) continue;
+
+            temp.Print();
+            Console.WriteLine(string.Join(", ", temp.Squares[0, 8].domain));
 
             // If we are here, no empty domains where found, continue the search
             (bool solved, Sudoku result) tuple = ApplyRecursive(temp, emptySquares, depth + 1);
@@ -112,6 +124,10 @@ public class ForwardChecking : SudokuAlgorithm
             {
                 return tuple;
             }
+
+            temp.Print();
+            Console.WriteLine(string.Join(", ", temp.Squares[0, 8].domain));
+
         }
 
         // No values worked, return false

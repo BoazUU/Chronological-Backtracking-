@@ -97,7 +97,7 @@ public class Sudoku
 		{
 			for (int j = 0; j < 9; j++)
 			{
-				Squares[i, j] = sudoku.Squares[i, j];
+				Squares[i, j] = new(sudoku.Squares[i, j]);
 			}
 		}
 
@@ -234,7 +234,9 @@ public class Sudoku
 
 		foreach(Square square in affectedSquares)
 		{
-			square.domain.Remove(changedSquare.value);
+			if(Squares[square.position.x, square.position.y].Equals(changedSquare.position))
+				continue;
+            Squares[square.position.x, square.position.y].domain.Remove(changedSquare.value);
         }
     }
 
@@ -244,7 +246,7 @@ public class Sudoku
 
 		foreach (Square square in affectedSquares)
 		{
-			if (square.domain.Count == 0)
+			if (Squares[square.position.x, square.position.y].value == 0 && square.domain.Count == 0)
 				return true;
         }
 
@@ -282,7 +284,15 @@ public struct Square
 
 	}
 
-	public void SetValue(int value)
+	public Square(Square square)
+	{
+		this.value = square.value;
+		this.isFixed = square.isFixed;
+		this.position = square.position;
+		this.domain = new SortedSet<int>(square.domain);
+    }
+
+    public void SetValue(int value)
 	{
 		if (!isFixed) this.value = value;
 		else throw new Exception("A fixed value should not be changed");
