@@ -11,7 +11,7 @@ public class ChronologicBacktracking : SudokuAlgorithm
         //Create hardcopy so orgiginal wont be changed
         Sudoku sudokuCopy = new Sudoku(sudoku);
 
-        // Create a queue of empty squares
+        // Create a list of empty squares
         List<Square> emptySquares = sudokuCopy.FindAllEmptySquare();
 
         // Apply the recursive function
@@ -76,7 +76,7 @@ public class ForwardChecking : SudokuAlgorithm
         for(int i = 0; i < 9; i++)
         {
             for(int j = 0; j < 9; j++) { 
-                sudoku.UpdateDomains(sudoku.Squares[i,j]);
+                sudokuCopy.UpdateDomains(sudokuCopy.Squares[i,j]);
             }
         }
 
@@ -104,7 +104,7 @@ public class ForwardChecking : SudokuAlgorithm
         // Update domains
         // Check if any other empty square has an empty domain
         
-        Square square = emptySquares[depth];
+        Square square = sudoku.Squares[emptySquares[depth].position.x, emptySquares[depth].position.y];
         SortedSet<int> domain = new(square.domain);
         
         foreach (int value in domain)
@@ -115,19 +115,12 @@ public class ForwardChecking : SudokuAlgorithm
             temp.UpdateDomains(temp.Squares[square.position.x, square.position.y]);
             if (temp.AnyEmptyDomains(temp.Squares[square.position.x, square.position.y])) continue;
 
-            temp.Print();
-            Console.WriteLine(string.Join(", ", temp.Squares[0, 8].domain));
-
             // If we are here, no empty domains where found, continue the search
             (bool solved, Sudoku result) tuple = ApplyRecursive(temp, emptySquares, depth + 1);
             if (tuple.solved)
             {
                 return tuple;
             }
-
-            temp.Print();
-            Console.WriteLine(string.Join(", ", temp.Squares[0, 8].domain));
-
         }
 
         // No values worked, return false
